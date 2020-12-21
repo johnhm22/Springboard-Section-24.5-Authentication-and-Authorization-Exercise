@@ -1,0 +1,50 @@
+{% extends 'base.html'  %}
+
+{% block content %}
+<h1>Details for {{username}}</h1>
+
+<div class="container">
+    <div class="row-6">
+        <table class="table">
+            <thead>
+                <th>Username</th>
+                <th>Email</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Content</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{username}}</td>
+                    <td>{{email}}</td>
+                    <td>{{first_name}}</td>
+                    <td>{{last_name}}</td>
+                    <td>  <p>{% for comment in comments%}
+                        {{comment.content}}
+                        {% if session['username'] == comment.username %}
+                        <form style="display:inline" action="/feedback/{{comment.id}}/update">
+                        <button class="btn btn-sm btn-info">Edit</button>
+                        </form>
+                        {%endif%}
+                    </p>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <form>
+            <button class="btn btn-sm btn-info"
+            formmethod='GET' formaction="/users/{{ username }}/feedback/add">
+            Add content
+            </button>
+            <button class="btn btn-sm btn-danger"
+            formmethod="POST" formaction="/users/{{ username }}/delete">
+            Delete
+            </button>
+        </form>
+    </div>
+
+</div>
+
+
+{% endblock %}
