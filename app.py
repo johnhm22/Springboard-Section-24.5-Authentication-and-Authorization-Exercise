@@ -3,6 +3,8 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import connect_db, db, User, Feedback
 from forms import RegisterUserForm, LoginForm, FeedbackForm
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import Unauthorized
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres:///auth_exercise"
@@ -62,7 +64,8 @@ def login_user():
 def secret_page(username):
     user = User.query.get(username)
     comments = user.feedback
-    if "username" not in session:
+
+    if "username" not in session or username != session['username']:
         flash("Please login first")
         return redirect('/login')
     return render_template('user_details.html', username = user.username, email = user.email, first_name = user.first_name, last_name = user.last_name, comments=comments)
@@ -89,12 +92,16 @@ def delete_user(username):
         return redirect('/')
     else:
         flash("You don't have permission to delete", info)
-        return redirect('/')
+        return redirect('/login')
 
 
 @app.route('/users/<username>/feedback/add', methods=['GET', 'POST'])
 def add_content(username):
     """Show add-feedback form and process it."""
+
+    if "username" not in session or username != session['username']:
+        raise Unauthorized()
+
     form = FeedbackForm()
 
     # if session['username'] == username:
